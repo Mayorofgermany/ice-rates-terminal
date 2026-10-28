@@ -44,7 +44,7 @@
     "publish": [
       {
         "provider": "github",
-        "owner": "YOUR_GITHUB_USERNAME",
+        "owner": "Mayorofgermany",
         "repo": "ice-rates-terminal"
       }
     ]
