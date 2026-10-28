@@ -1,0 +1,76 @@
+name: Build Windows app
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check if this is a Node project
+        id: node_check
+        shell: bash
+        run: |
+          if [ -f package.json ]; then
+            echo "has_package_json=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_package_json=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Node.js
+        if: steps.node_check.outputs.has_package_json == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        if: steps.node_check.outputs.has_package_json == 'true'
+        shell: bash
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Build app
+        if: steps.node_check.outputs.has_package_json == 'true'
+        shell: bash
+        run: |
+          if npm run | grep -q "build"; then
+            npm run build
+          else
+            echo "No build script found. Skipping build step."
+          fi
+
+      - name: Package Windows app (if package script exists)
+        if: steps.node_check.outputs.has_package_json == 'true'
+        shell: bash
+        run: |
+          if npm run | grep -q "package"; then
+            npm run package || npm run dist || npm run release || true
+          else
+            echo "No package/dist/release script found."
+          fi
+
+      - name: Upload Windows artifact
+        if: steps.node_check.outputs.has_package_json == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-app
+          path: |
+            dist/**
+            build/**
+            release/**
+            *.exe
+            *.msi
+            *.zip
+          if-no-files-found: warn
