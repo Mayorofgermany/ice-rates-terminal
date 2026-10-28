@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; img-src 'self' data:">
+<title>ICE Rates Terminal</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <img class="logo-img" src="logo.png" alt="ICE">
+      <div>
+        <h1>ICE Rates Terminal</h1>
+        <div class="tag">Official · Bank · Market rates for the naira, currencies and crypto</div>
+      </div>
+    </div>
+    <div class="topctl">
+      <div id="liveBadge" class="badge-live" title="Data status"><span class="dot"></span><span id="liveText">…</span></div>
+      <div class="seg" role="tablist" aria-label="Rate source">
+        <button id="segMarket" class="seg-btn" data-src="market">Live market</button>
+        <button id="segCbn" class="seg-btn" data-src="cbn">CBN official</button>
+      </div>
+      <button id="pinBtn" class="icon-btn" title="Keep on top (mini mode)">&#128204;</button>
+      <button id="themeBtn" class="icon-btn" title="Switch theme">&#9680;</button>
+      <button id="settingsBtn" class="icon-btn" title="Settings (Ctrl+,)">&#9881;</button>
+    </div>
+  </header>
+
+  <div class="ticker" aria-label="Live rates ticker"><div id="track" class="track"></div></div>
+
+  <main class="grid">
+    <section class="left">
+      <div class="panel">
+        <div class="chips" id="chips"></div>
+
+        <label class="lbl" for="amount">Amount</label>
+        <input id="amount" class="amount" type="text" inputmode="decimal" value="1" autocomplete="off" spellcheck="false">
+
+        <div class="pair">
+          <div class="pcol">
+            <label class="lbl" for="from">From</label>
+            <select id="from" class="big"></select>
+          </div>
+          <button id="swap" class="swap" title="Swap (Alt+S)" aria-label="Swap currencies">&#8644;</button>
+          <div class="pcol">
+            <label class="lbl" for="to">To</label>
+            <select id="to" class="big"></select>
+          </div>
+        </div>
+
+        <div id="modeRow" class="moderow">
+          <label class="lbl" for="mode">CBN rate type</label>
+          <select id="mode" class="big">
+            <option value="central">Central (mid) rate</option>
+            <option value="buysell">Buying / selling rate</option>
+          </select>
+        </div>
+
+        <div class="hero" id="hero">
+          <div class="hero-top">
+            <span class="hero-lbl">You get</span>
+            <button id="copyBtn" class="mini" title="Copy result (Ctrl+Shift+C)">Copy</button>
+          </div>
+          <div id="result" class="result" aria-live="polite">—</div>
+          <div id="rateLine" class="rateline"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ptitle">Trend <span id="trendPair" class="muted"></span></div>
+        <div class="ranges" id="ranges">
+          <button class="rng on" data-r="live">Live</button>
+          <button class="rng" data-r="7">7D</button>
+          <button class="rng" data-r="30">30D</button>
+          <button class="rng" data-r="90">90D</button>
+          <button class="rng" data-r="365">1Y</button>
+          <button class="rng" data-r="1825">5Y</button>
+        </div>
+        <div id="spark" class="spark"></div>
+        <div id="sparkStats" class="sparkstats"></div>
+        <div id="histNote" class="attrib"></div>
+      </div>
+    </section>
+
+    <section class="right">
+      <div class="panel">
+        <div class="ptitle">Watchlist <span class="muted">your amount in…</span></div>
+        <div id="watch" class="watch"></div>
+        <div class="addrow">
+          <select id="watchAdd" class="med"></select>
+          <button id="watchAddBtn" class="btn">Add</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ptitle"><span id="cmpTitle">Compare sources</span> <span id="cmpPair" class="muted"></span></div>
+        <div id="compare" class="compare"></div>
+        <div class="addrow"><button id="bankEdit" class="btn ghost">Edit bank rates</button></div>
+      </div>
+
+      <div class="panel">
+        <div class="ptitle">Rate alerts</div>
+        <div class="alertform">
+          <span id="alertPair" class="alertpair">1 USD → NGN</span>
+          <select id="alertDir" class="med">
+            <option value="above">goes above</option>
+            <option value="below">drops below</option>
+          </select>
+          <input id="alertVal" class="med" type="text" inputmode="decimal" autocomplete="off" placeholder="rate">
+          <button id="alertAdd" class="btn">Set alert</button>
+        </div>
+        <div id="alerts" class="alerts"></div>
+      </div>
+
+      <div class="panel statuspanel">
+        <div id="statusText" class="statustext">Loading rates…</div>
+        <div id="warnText" class="warnline"></div>
+        <label class="lbl" for="cryptoSrc">Crypto price source</label>
+        <select id="cryptoSrc" class="med full">
+          <option value="auto">Auto (CoinGecko, then Binance, then Coinbase)</option>
+          <option value="coingecko">CoinGecko (market aggregate)</option>
+          <option value="binance">Binance</option>
+          <option value="coinbase">Coinbase</option>
+        </select>
+        <div id="updateRow" class="updaterow hidden">
+          <span id="updateText"></span>
+          <button id="updateBtn" class="btn hidden">Restart &amp; update</button>
+        </div>
+        <div class="actions">
+          <button id="refresh" class="btn">Refresh now</button>
+          <button id="checkUpdate" class="btn ghost">Check for updates</button>
+        </div>
+        <div id="verText" class="attrib"></div>
+        <div id="attribution" class="attrib"></div>
+        <div class="keys">Shortcuts: Alt+S swap · F5 refresh · Ctrl+Shift+C copy · Ctrl+, settings</div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<div id="overlay" class="overlay hidden">
+  <section class="panel modal">
+    <div class="modal-head">
+      <h2>Settings</h2>
+      <button id="closeSettings" class="icon-btn" aria-label="Close">&#10005;</button>
+    </div>
+
+    <h3>Live market keys (optional)</h3>
+    <p class="hint">Without keys, currency rates update about once a day and crypto uses CoinGecko's public limits. A paid ExchangeRate-API plan gives more frequent currency updates.</p>
+    <label class="lbl" for="erKey">ExchangeRate-API key</label>
+    <input id="erKey" class="med full" type="password" autocomplete="off">
+    <label class="lbl" for="cgKey">CoinGecko demo API key</label>
+    <input id="cgKey" class="med full" type="password" autocomplete="off">
+
+    <h3>CBN official source</h3>
+    <label class="lbl" for="apiUrl">Provider URL</label>
+    <input id="apiUrl" class="med full" type="text" autocomplete="off">
+    <label class="lbl" for="apiKey">Provider API key</label>
+    <input id="apiKey" class="med full" type="password" autocomplete="off">
+    <button id="saveSettings" class="btn">Save settings</button>
+
+    <h3>Manual CBN rates</h3>
+    <p class="hint">Paste the day's rates from cbn.gov.ng, one per line:
+      <code>USD,1450.20</code> or <code>USD,buy,central,sell</code> (NGN per 1 unit)</p>
+    <label class="lbl" for="manualDate">Rate date</label>
+    <input id="manualDate" class="med" type="date">
+    <textarea id="manualText" rows="5" spellcheck="false"></textarea>
+    <button id="applyManual" class="btn">Use these rates</button>
+  </section>
+</div>
+
+<div id="bankOverlay" class="overlay hidden">
+  <section class="panel modal">
+    <div class="modal-head">
+      <h2>Nigerian bank rates</h2>
+      <button id="closeBank" class="icon-btn" aria-label="Close">&#10005;</button>
+    </div>
+    <p class="hint">Banks do not publish a standard free rate feed, so enter each bank's rates from its website, branch or treasury desk. One line per currency: <code>USD,buy,sell</code> (naira per 1 unit). Buy is what the bank pays you for the currency; sell is what you pay the bank.</p>
+    <label class="lbl" for="bankName">Bank</label>
+    <select id="bankName" class="med full"></select>
+    <label class="lbl" for="bankUrl">Official rates page link (optional)</label>
+    <input id="bankUrl" class="med full" type="text" autocomplete="off" placeholder="https://… the bank's own exchange rates page">
+    <div class="actions">
+      <button id="bankFetch" class="btn">Fetch from website</button>
+      <button id="bankFetchAll" class="btn ghost">Update all banks from websites</button>
+    </div>
+    <p class="hint">The app opens the page, reads the rate table and fills the box below for you to check before saving. Pages that only publish a PDF cannot be read automatically.</p>
+    <label class="lbl" for="bankDate">Rate date</label>
+    <input id="bankDate" class="med" type="date">
+    <label class="lbl" for="bankText">Rates</label>
+    <textarea id="bankText" rows="7" spellcheck="false" placeholder="USD,1440,1465&#10;GBP,1900,1960&#10;EUR,1640,1700"></textarea>
+    <div class="actions">
+      <button id="bankSave" class="btn">Save bank rates</button>
+      <button id="bankDelete" class="btn ghost">Clear this bank</button>
+    </div>
+    <div id="bankList" class="hint"></div>
+  </section>
+</div>
+
+<script src="rates.js"></script>
+<script src="renderer.js"></script>
+</body>
+</html>

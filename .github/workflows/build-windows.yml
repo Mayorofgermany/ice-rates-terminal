@@ -1,0 +1,32 @@
+name: Build Windows app
+on:
+  push:
+    tags: ['v*']          # e.g. git tag v1.2.1 && git push --tags  -> publishes a release the app can auto-update from
+  workflow_dispatch:      # manual run -> just builds downloadable artifacts
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npm test
+
+      # Manual run: installer + portable exe as downloadable artifacts
+      - if: github.ref_type != 'tag'
+        run: npm run dist
+      - if: github.ref_type != 'tag'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ICE-Rates-Terminal-Windows
+          path: dist/*.exe
+
+      # Tag push: publish installer + latest.yml to GitHub Releases (this is what auto-update reads)
+      - if: github.ref_type == 'tag'
+        run: npm run release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
